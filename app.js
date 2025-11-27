@@ -21,5 +21,11 @@ mongoose.connect(url)
 
 app.get('/', (req, res) => res.status(200).json({ status: 'API Online' }));
 
+const usuariosRouter = require('./src/routes/usuariosRouter');
+const reclamacoesRouter = require('./src/routes/reclamacoesRouter');
+
+app.use('/usuarios', usuariosRouter);
+app.use('/reclamacoes', reclamacoesRouter);
+
 
 module.exports = app;
