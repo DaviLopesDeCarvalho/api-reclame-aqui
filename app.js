@@ -22,10 +22,10 @@ app.get('/', (req, res) => res.status(200).json({ status: 'API Online' }));
 
 const usuariosRouter = require('./src/routes/usuariosRouter');
 const reclamacoesRouter = require('./src/routes/reclamacoesRouter');
-
+const apidocsRouter = require('./src/routes/apidocsRouter')
 
 app.use('/usuarios', usuariosRouter);
 app.use('/reclamacoes', reclamacoesRouter);
-
+app.use('/api-docs', apidocsRouter);
 
 module.exports = app;
