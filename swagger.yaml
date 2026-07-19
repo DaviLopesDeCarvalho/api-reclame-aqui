@@ -1,0 +1,178 @@
+openapi: 3.0.0
+info:
+  title: API Reclame Aqui
+  description: API para gestão de reclamações de consumidores.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Servidor Local
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Usuario:
+      type: object
+      properties:
+        email:
+          type: string
+          example: teste@email.com
+        senha:
+          type: string
+          example: 123456
+    Reclamacao:
+      type: object
+      properties:
+        titulo:
+          type: string
+          example: Produto com defeito
+        descricao:
+          type: string
+          example: O produto chegou quebrado na caixa.
+        empresa:
+          type: string
+          example: Loja XYZ
+        status:
+          type: string
+          enum: [Pendente, Em análise, Resolvida]
+paths:
+  /auth/register:
+    post:
+      tags: [Autenticação]
+      summary: Cadastrar novo usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Usuario"
+      responses:
+        201:
+          description: Usuário criado com sucesso
+        422:
+          description: Dados inválidos ou email já existe
+
+  /auth/login:
+    post:
+      tags: [Autenticação]
+      summary: Login
+      description: Retorna um token JWT para acesso.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Usuario"
+      responses:
+        200:
+          description: Sucesso (Retorna Token)
+        401:
+          description: Credenciais inválidas
+
+  /reclamacoes:
+    get:
+      tags: [Reclamações]
+      summary: Listar todas as reclamações
+      responses:
+        200:
+          description: Lista retornada
+    post:
+      tags: [Reclamações]
+      summary: Criar nova reclamação
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Reclamacao"
+      responses:
+        201:
+          description: Criada com sucesso
+        401:
+          description: Não autorizado (Falta token)
+
+  /reclamacoes/{id}:
+    get:
+      tags: [Reclamações]
+      summary: Buscar reclamação por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Dados da reclamação
+        404:
+          description: Não encontrada
+
+    put:
+      tags: [Reclamações]
+      summary: Atualizar reclamação (Completo)
+      description: Requer ser o dono da reclamação.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Reclamacao"
+      responses:
+        200:
+          description: Atualizado
+        403:
+          description: Proibido (Não é o dono)
+
+    patch:
+      tags: [Reclamações]
+      summary: Atualizar parcial (ex. Status)
+      description: Requer ser o dono da reclamação.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: Resolvida
+      responses:
+        200:
+          description: Status atualizado
+        403:
+          description: Proibido
+
+    delete:
+      tags: [Reclamações]
+      summary: Excluir reclamação
+      description: Requer ser o dono da reclamação.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        204:
+          description: Deletado com sucesso
